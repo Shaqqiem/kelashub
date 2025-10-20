@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="manifest" href="/kelashub-v3/manifest.webmanifest" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KelasHub v3</title>
+  </head>
+  <body class="bg-gray-50">
+    <div id="root"></div>
+    <script>
+      // register service worker for push
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/kelashub-v3/sw.js');
+      }
+    </script>
+    <script type="module" src="/kelashub-v3/src/main.jsx"></script>
+  </body>
+</html>
