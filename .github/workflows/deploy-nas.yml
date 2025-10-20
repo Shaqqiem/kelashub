@@ -1,0 +1,44 @@
+name: Deploy to NAS (optional)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Prepare SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.NAS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "${{ secrets.NAS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Rsync code to NAS
+        run: |
+          rsync -az --delete \
+            --exclude='.git/' \
+            --exclude='node_modules/' \
+            --exclude='.github/' \
+            ./ "${{ secrets.NAS_USER }}@${{ secrets.NAS_HOST }}:${{ secrets.NAS_DEPLOY_PATH }}/"
+
+      - name: Restart Docker stack on NAS
+        run: |
+          ssh -i ~/.ssh/id_rsa "${{ secrets.NAS_USER }}@${{ secrets.NAS_HOST }}" \
+            "cd '${{ secrets.NAS_DEPLOY_PATH }}' && docker compose pull && docker compose up -d --build && docker compose run --rm backend npx prisma migrate deploy"
