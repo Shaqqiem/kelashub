@@ -6,8 +6,8 @@
 **Features**: JWT auth + roles, QR attendance (TTL), file uploads, analytics, web push (VAPID), reminder worker, rate limiting, CORS whitelist, pagination, indices.
 
 ---
-
-## 0) Repository Structure
+```bash
+Repository Structure
 kelashub/
 ├─ docker-compose.yml
 ├─ README.md
@@ -45,7 +45,6 @@ kelashub/
 ├─ services/api.js
 ├─ components/Header.jsx
 └─ pages/ (Login, Dashboard, Classes, SessionDetail, QRScanner, Assignments, NotFound)
-
 
 ---
 
