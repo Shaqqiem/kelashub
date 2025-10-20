@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: kelashub_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kelashub
+      POSTGRES_PASSWORD: kelashub
+      POSTGRES_DB: kelashub
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - kelashub_net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kelashub_backend
+    restart: unless-stopped
+    depends_on:
+      - db
+    env_file:
+      - ./backend/.env
+    ports:
+      - "4000:4000"
+    volumes:
+      - files_data:/files
+    networks:
+      - kelashub_net
+    command: ["node","src/index.js"]
+
+  # OPTIONAL: If you don't use Synology Reverse Proxy, enable Nginx by uncommenting:
+  # nginx:
+  #   image: nginx:1.27-alpine
+  #   container_name: kelashub_nginx
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - backend
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./ops/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ops/nginx/certs:/etc/nginx/certs:ro
+  #     - files_data:/files:ro
+  #   networks:
+  #     - kelashub_net
+
+volumes:
+  db_data:
+  files_data:
+
+networks:
+  kelashub_net:
+    driver: bridge
