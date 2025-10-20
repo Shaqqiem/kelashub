@@ -1,1 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  enrollments Enrollment[]
+  classes     Class[]      @relation("ClassOwner")
+  submissions Submission[]
+  pushes      PushSubscription[]
+
+  @@index([email])
+  @@index([role])
+}
+
+enum Role {
+  ADMIN
+  LECTURER
+  STUDENT
+}
+
+model Class {
+  id          String    @id @default(uuid())
+  title       String
+  code        String    @unique
+  ownerId     String
+  owner       User      @relation("ClassOwner", fields: [ownerId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  enrollments Enrollment[]
+  sessions    Session[]
+
+  @@index([code])
+  @@index([ownerId])
+}
+
+model Enrollment {
+  id        String  @id @default(uuid())
+  userId    String
+  classId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  class Class @relation(fields: [classId], references: [id])
+
+  @@unique([userId, classId])
+  @@index([classId, userId])
+}
+
+model Session {
+  id          String    @id @default(uuid())
+  classId     String
+  title       String
+  startsAt    DateTime
+  endsAt      DateTime
+  createdAt   DateTime  @default(now())
+
+  class       Class     @relation(fields: [classId], references: [id])
+  attendances Attendance[]
+
+  @@index([classId, startsAt])
+}
+
+model Attendance {
+  id        String   @id @default(uuid())
+  sessionId String
+  userId    String
+  scannedAt DateTime @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([sessionId, userId])
+  @@index([sessionId])
+  @@index([userId])
+}
+
+model Submission {
+  id        String   @id @default(uuid())
+  classId   String
+  userId    String
+  filename  String
+  mimetype  String
+  path      String
+  uploadedAt DateTime @default(now())
+
+  class Class @relation(fields: [classId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@index([classId, userId])
+  @@index([uploadedAt])
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
 
