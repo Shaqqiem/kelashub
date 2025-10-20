@@ -6,8 +6,10 @@
 **Features**: JWT auth + roles, QR attendance (TTL), file uploads, analytics, web push (VAPID), reminder worker, rate limiting, CORS whitelist, pagination, indices.
 
 ---
+## ⚙️ Project Structure
+
 ```bash
-Repository Structure
+
 kelashub/
 ├─ docker-compose.yml
 ├─ README.md
@@ -46,20 +48,3 @@ kelashub/
 ├─ components/Header.jsx
 └─ pages/ (Login, Dashboard, Classes, SessionDetail, QRScanner, Assignments, NotFound)
 
----
-
-## 1) Paste & Run — End-to-End Deployment
-
-> **Goal**: Live frontend on GitHub Pages calling your NAS API over HTTPS at `https://api.kelashub.my`.
-
-### A. Create the GitHub repo and push
-```bash
-# On your machine
-mkdir kelashub && cd kelashub
-# paste all files exactly as in this README answer (preserve paths)
-git init
-git branch -m main
-git remote add origin git@github.com:<your-username>/kelashub-v3.git
-git add .
-git commit -m "KelasHub v3 initial"
-git push -u origin main
